@@ -12,7 +12,7 @@ from colorama import Fore, Back, Style, init
 init()
 print(Fore.GREEN)
 
-print("C427 eMMC Programming Tool")
+print("eMMC Programming Tool")
 print("--This tool copies a RAW image file to eMMC storage using bmap-tools")
 print("--Requires an image file and bmap file created using bmap-tools")
 print("--files must be in /home/winsys/ directory\n\n")
