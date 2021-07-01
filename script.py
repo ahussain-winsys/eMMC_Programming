@@ -36,12 +36,12 @@ while True:
 try:
 ######### Calls subprocess for getting available physical disks and prepares a list of strings ###########
 #####################################################################################################
-	call = subprocess.Popen(['lshw','-class','disk'],stdout=subprocess.PIPE)
-	disk_choice = subprocess.check_output(['grep','logical name: *'],stdin=call.stdout).decode('ascii')
+	call = subprocess.Popen(['hwinfo','--disk','--short'],stdout=subprocess.PIPE)
+	disk_choice = subprocess.check_output(['grep','-v','sda\|disk:'],stdin=call.stdout).decode('ascii')
 	call.wait()
 	disk_choice = disk_choice.split('\n')
 	for x in range(len(disk_choice)):
-		disk_choice[x] = disk_choice[x].replace('logical name: ','')
+		disk_choice[x] = disk_choice[x].replace('Disk','')
 		disk_choice[x] = disk_choice[x].strip()
 	disk_choice = list(filter(None,disk_choice))
 
@@ -90,11 +90,8 @@ try:
 	sql = format("INSERT INTO "+"dbo.WinSys_Test_Support_Data"+" ( "+columns+" ) VALUES ( "+placeholders+" )")
 	print('\nUpdating ARAS database...\n')
 	conn = pyodbc.connect('DSN=server;Database=TestSuite;UID=TestDevTemp;PWD=TempPass1!;Trusted_Connection=No; Connection Timeout=10')
-	print('a')
 	cursor = conn.cursor()
-	print('b')
 	cursor.execute(sql,*supdict.values())
-	print('c')
 	conn.commit()
 
 ######## Present prompt if no exceptions are thrown #######################################
