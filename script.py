@@ -8,6 +8,9 @@ import pyodbc
 import traceback
 from colorama import Fore, Back, Style, init
 
+######### July 1st 2021 ##############
+######### Al Hussain    ##############
+
 ## init for colorama
 init()
 print(Fore.GREEN)
