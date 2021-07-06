@@ -100,12 +100,19 @@ try:
 ######## Present prompt if no exceptions are thrown #######################################
 ###########################################################################################
 
-	print(Back.GREEN + Fore.WHITE + 'SUCCESS - Press ENTER to continue.')
+	print(Back.GREEN + Fore.WHITE + 'SUCCESS - Press ENTER to shutdown.')
 	print(Style.RESET_ALL)
-	input()
 
 except Exception:
 	print(Back.RED + Fore.WHITE)
 	traceback.print_exc()
-	print("FAILURE - Error occured during process.")
+	print("FAILURE - Error occured during process. Press ENTER to shutdown. ")
 	print(Style.RESET_ALL)
+
+finally:
+	try:
+		value = input()
+		print("Shutting Down...\n")
+		subprocess.run(['shutdown','now'],stdout=subprocess.PIPE)
+	except KeyboardInterrupt:
+		raise
