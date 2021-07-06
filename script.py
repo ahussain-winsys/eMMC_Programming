@@ -50,7 +50,7 @@ try:
 
 ######### Returns list of image files #######################################################
 #############################################################################################
-	ext = ('.img','.bz2','.gz','.tar.gz','.tgz','.tar.bz2')
+	ext = ('.img','.bz2','.gz','.tgz')
 	files = []
 	for z in ext:
 		files.extend(glob.glob('/home/winsys/*'+z))
