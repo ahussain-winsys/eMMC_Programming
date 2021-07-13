@@ -76,6 +76,49 @@ try:
 	if popen.wait():
 		raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
 
+
+
+######## Resize last partition #############################################################
+############################################################################################
+
+	try:
+		print("Getting Partition Info...\n")
+		call1 = subprocess.Popen(['parted','-s',answer['disk'],'print'],stdout=subprocess.PIPE)
+		call2 = subprocess.Popen(['grep','-o','^ [0-9] '],stdin=call1.stdout,stdout=subprocess.PIPE)
+		call1.wait()
+		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
+		call2.wait()
+		parted_num = call3.strip()
+		print(parted_num)
+		print("Resizing Partition...\n")
+		subprocess.run(['parted','-s',answer['disk],'resizepart',parted_num,'100%'],stderr=sys.stderr,stdout=subprocess.PIPE)
+		call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
+		call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
+		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
+		call1.wait()
+		partition = call3.strip()
+		print("Resizing File System...\n")
+
+		popen = subprocess.Popen(['e2fsck','-f','-y',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+		try:
+			outs, errs = popen.communicate()
+		except:
+			popen.kill()
+		if popen.wait():
+			raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
+
+		popen = subprocess.Popen(['resize2fs',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+		try:
+			outs, errs = popen.communicate()
+		except:
+			popen.kill()
+		if popen.wait():
+			raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
+	except Exception as e:
+		raise
+
+
+
 ######## Log to ARAS Database ##############################################################
 ############################################################################################
 
@@ -92,10 +135,10 @@ try:
 	columns = ', '.join(supdict.keys())
 	sql = format("INSERT INTO "+"dbo.WinSys_Test_Support_Data"+" ( "+columns+" ) VALUES ( "+placeholders+" )")
 	print('\nUpdating ARAS database...\n')
-	conn = pyodbc.connect('DSN=server;Database=TestSuite;UID=TestDevTemp;PWD=TempPass1!;Trusted_Connection=No; Connection Timeout=10')
-	cursor = conn.cursor()
-	cursor.execute(sql,*supdict.values())
-	conn.commit()
+#	conn = pyodbc.connect('DSN=server;Database=TestSuite;UID=TestDevTemp;PWD=TempPass1!;Trusted_Connection=No; Connection Timeout=10')
+#	cursor = conn.cursor()
+#	cursor.execute(sql,*supdict.values())
+#	conn.commit()
 
 ######## Present prompt if no exceptions are thrown #######################################
 ###########################################################################################
