@@ -83,15 +83,27 @@ try:
 
 	try:
 		print("Getting Partition Info...\n")
+<<<<<<< HEAD
 		call1 = subprocess.Popen(['parted','-s',answer['disk'],'print'],stdout=subprocess.PIPE)
+=======
+		call1 = subprocess.Popen(['parted','-s','-f',answer['disk'],'print'],stdout=subprocess.PIPE)
+>>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
 		call2 = subprocess.Popen(['grep','-o','^ [0-9] '],stdin=call1.stdout,stdout=subprocess.PIPE)
 		call1.wait()
 		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
 		call2.wait()
 		parted_num = call3.strip()
+<<<<<<< HEAD
 		print(parted_num)
 		print("Resizing Partition...\n")
 		subprocess.run(['parted','-s',answer['disk],'resizepart',parted_num,'100%'],stderr=sys.stderr,stdout=subprocess.PIPE)
+=======
+		
+		print(parted_num)
+		print("Resizing Partition...\n")
+		subprocess.run(['parted','-s','-f',answer['disk'],'resizepart',parted_num,'100%'],capture_output=True,check=True)
+		
+>>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
 		call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
 		call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
 		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
@@ -99,7 +111,11 @@ try:
 		partition = call3.strip()
 		print("Resizing File System...\n")
 
+<<<<<<< HEAD
 		popen = subprocess.Popen(['e2fsck','-f','-y',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+=======
+		popen = subprocess.Popen(['e2fsck','-f','-y','-v','-t',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+>>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
 		try:
 			outs, errs = popen.communicate()
 		except:
@@ -107,7 +123,11 @@ try:
 		if popen.wait():
 			raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
 
+<<<<<<< HEAD
 		popen = subprocess.Popen(['resize2fs',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+=======
+		popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+>>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
 		try:
 			outs, errs = popen.communicate()
 		except:
@@ -156,6 +176,10 @@ finally:
 	try:
 		value = input()
 		print("Shutting Down...\n")
+<<<<<<< HEAD
 		subprocess.run(['shutdown','now'],stdout=subprocess.PIPE)
+=======
+		subprocess.run(['shutdown','now'],capture_output=True,check=True)
+>>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
 	except KeyboardInterrupt:
 		raise
