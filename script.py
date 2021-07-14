@@ -61,6 +61,9 @@ try:
 		inquirer.List('disk', message = "Select physical disk: ", choices = disk_choice)]
 	answer = inquirer.prompt(question)
 
+######## Wipe existing partition table ######################################################
+#############################################################################################
+	subprocess.run(['wipefs','-a',answer['disk']],capture_output=True,check=True)
 
 ######## Calls bmaptool to copy image to disk ###############################################
 #############################################################################################
@@ -83,7 +86,9 @@ try:
 
 	try:
 		print("Getting Partition Info...\n")
-		call1 = subprocess.Popen(['parted','-s','-f',answer['disk'],'print'],stdout=subprocess.PIPE)
+		subprocess.run(['sgdisk','-e',answer['disk']],capture_output=True,check=True)
+		subprocess.run(['sgdisk','-v',answer['disk']],capture_output=True,check=True)
+		call1 = subprocess.Popen(['parted','-s',answer['disk'],'print'],stdout=subprocess.PIPE)
 		call2 = subprocess.Popen(['grep','-o','^ [0-9] '],stdin=call1.stdout,stdout=subprocess.PIPE)
 		call1.wait()
 		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
@@ -92,7 +97,13 @@ try:
 
 		print(parted_num)
 		print("Resizing Partition...\n")
-		subprocess.run(['parted','-s','-f',answer['disk'],'resizepart',parted_num,'100%'],capture_output=True,check=True)
+		popen = subprocess.Popen(['parted','-s',answer['disk'],'resizepart',parted_num,'100%'],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+		try:
+			outs, errs = popen.communicate()
+		except:
+			popen.kill()
+		if popen.wait():
+			raise RuntimeError('FAILURE - Error occurred during resising partition.')
 
 		call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
 		call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
@@ -107,7 +118,7 @@ try:
 		except:
 			popen.kill()
 		if popen.wait():
-			raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
+			raise RuntimeError('FAILURE - Error occurred during filesystem resize (e2fsck).')
 
 		popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
 		try:
@@ -115,7 +126,7 @@ try:
 		except:
 			popen.kill()
 		if popen.wait():
-			raise RuntimeError('FAILURE - Error occurred during bmaptool execution.')
+			raise RuntimeError('FAILURE - Error occurred during fileystem resize (resize2fs).')
 	except Exception as e:
 		raise
 
