@@ -93,8 +93,7 @@ try:
 		print(parted_num)
 		print("Resizing Partition...\n")
 		subprocess.run(['parted','-s','-f',answer['disk'],'resizepart',parted_num,'100%'],capture_output=True,check=True)
-		
->>>>>>> b8f767dfd675e4bae2fe968e9957a2742c1d31d0
+
 		call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
 		call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
 		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
