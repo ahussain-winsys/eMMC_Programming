@@ -44,8 +44,9 @@ try:
 	call.wait()
 	disk_choice = disk_choice.split('\n')
 	for x in range(len(disk_choice)):
-		disk_choice[x] = disk_choice[x].replace('Disk','')
+		#disk_choice[x] = disk_choice[x].replace('Disk','')
 		disk_choice[x] = disk_choice[x].strip()
+		disk_choice[x] = disk_choice[x].split(' ',1)[0]
 	disk_choice = list(filter(None,disk_choice))
 
 ######### Returns list of image files #######################################################
