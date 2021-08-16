@@ -8,7 +8,7 @@ import pyodbc
 import traceback
 from colorama import Fore, Back, Style, init
 
-######### July 1st 2021 ##############
+######### August 16th 2021 ##############
 ######### Al Hussain    ##############
 
 ## init for colorama
@@ -40,8 +40,10 @@ try:
 ######### Calls subprocess for getting available physical disks and prepares a list of strings ###########
 #####################################################################################################
 	call = subprocess.Popen(['hwinfo','--disk','--short'],stdout=subprocess.PIPE)
-	disk_choice = subprocess.check_output(['grep','-v','sda\|disk:'],stdin=call.stdout).decode('ascii')
+	#disk_choice = subprocess.check_output(['grep','-v','sda\|disk:'],stdin=call.stdout).decode('ascii')
+	disk_choice = subprocess.check_output(['grep','/dev'],stdin=call.stdout).decode('ascii')
 	call.wait()
+	call.kill()
 	disk_choice = disk_choice.split('\n')
 	for x in range(len(disk_choice)):
 		#disk_choice[x] = disk_choice[x].replace('Disk','')
@@ -87,6 +89,15 @@ try:
 ############################################################################################
 
 	ntfs = False
+	print("\nChecking if NTFS partition exists...")
+	proc1 = subprocess.Popen(['lsblk','-f','-p',answer['disk']],stdout=subprocess.PIPE)
+	proc2 = subprocess.Popen(['grep','-c','ntfs'],stdin=proc1.stdout,stdout=subprocess.PIPE)
+	outs, errs = proc2.communicate()
+	print(outs)
+	ntfs = bool(int(outs.decode('ascii').strip()))
+	if ntfs:
+		print("Found NTFS partition...")
+	proc1.kill()
 	try:
 		print("Getting Partition Info...\n")
 		subprocess.run(['sgdisk','-e',answer['disk']],capture_output=True,check=True)
@@ -98,7 +109,7 @@ try:
 		call2.wait()
 		parted_num = call3.strip()
 
-		print(parted_num)
+		print("Partition Number "+parted_num+" on "+answer['disk']+"...")
 		print("Resizing Partition...\n")
 		popen = subprocess.Popen(['parted','-s',answer['disk'],'resizepart',parted_num,'100%'],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
 		try:
@@ -115,21 +126,38 @@ try:
 		partition = call3.strip()
 		print("Resizing File System...\n")
 
-		popen = subprocess.Popen(['e2fsck','-f','-y','-v','-t',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-		try:
-			outs, errs = popen.communicate()
-		except:
-			popen.kill()
-		if popen.wait():
-			raise RuntimeError('FAILURE - Error occurred during filesystem resize (e2fsck).')
+		if ntfs:
+			popen = subprocess.Popen(['ntfsresize','-x',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+			try:
+				outs, errs = popen.communicate()
+			except:
+				popen.kill()
+			if popen.wait():
+				raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
 
-		popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-		try:
-			outs, errs = popen.communicate()
-		except:
-			popen.kill()
-		if popen.wait():
-			raise RuntimeError('FAILURE - Error occurred during fileystem resize (resize2fs).')
+			#popen = subprocess.Popen(['ntfsfix',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newline=True)
+			#try:
+			#	outs, errs = popen.communicate()
+			#except:
+			#	popen.kill()
+			#if popen.wait():
+			#	raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
+		else:
+			popen = subprocess.Popen(['e2fsck','-f','-y','-v','-t',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+			try:
+				outs, errs = popen.communicate()
+			except:
+				popen.kill()
+			if popen.wait():
+				raise RuntimeError('FAILURE - Error occurred during filesystem resize (e2fsck).')
+
+			popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+			try:
+				outs, errs = popen.communicate()
+			except:
+				popen.kill()
+			if popen.wait():
+				raise RuntimeError('FAILURE - Error occurred during fileystem resize (resize2fs).')
 	except Exception as e:
 		raise
 
