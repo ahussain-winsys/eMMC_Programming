@@ -46,7 +46,7 @@ try:
 	for x in range(len(disk_choice)):
 		#disk_choice[x] = disk_choice[x].replace('Disk','')
 		disk_choice[x] = disk_choice[x].strip()
-		disk_choice[x] = disk_choice[x].split(' ',1)[0]
+		#disk_choice[x] = disk_choice[x].split(' ',1)[0]
 	disk_choice = list(filter(None,disk_choice))
 
 ######### Returns list of image files #######################################################
@@ -61,6 +61,7 @@ try:
 	question = [inquirer.List('imgfile', message = "Select image file: ", choices = files),
 		inquirer.List('disk', message = "Select physical disk: ", choices = disk_choice)]
 	answer = inquirer.prompt(question)
+	answer['disk'] = answer['disk'].split(' ',1)[0]
 
 ######## Wipe existing partition table ######################################################
 #############################################################################################
@@ -85,6 +86,7 @@ try:
 ######## Resize last partition #############################################################
 ############################################################################################
 
+	ntfs = False
 	try:
 		print("Getting Partition Info...\n")
 		subprocess.run(['sgdisk','-e',answer['disk']],capture_output=True,check=True)
