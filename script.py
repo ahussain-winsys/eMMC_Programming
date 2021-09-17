@@ -2,6 +2,7 @@ import inquirer
 import glob
 import subprocess
 import datetime
+import time
 import sys
 import os
 import pyodbc
@@ -15,8 +16,8 @@ from colorama import Fore, Back, Style, init
 init()
 print(Fore.GREEN)
 
-print("eMMC Programming Tool")
-print("--This tool copies a RAW image file to eMMC storage using bmap-tools")
+print("OS Programming Tool")
+print("--This tool copies an image file to any attached storage using bmap-tools")
 print("--Requires an image file and bmap file created using bmap-tools")
 print("--files must be in /home/winsys/ directory\n\n")
 
@@ -89,11 +90,12 @@ try:
 ############################################################################################
 
 	ntfs = False
+	time.sleep(10)
 	print("\nChecking if NTFS partition exists...")
 	proc1 = subprocess.Popen(['lsblk','-f','-p',answer['disk']],stdout=subprocess.PIPE)
 	proc2 = subprocess.Popen(['grep','-c','ntfs'],stdin=proc1.stdout,stdout=subprocess.PIPE)
 	outs, errs = proc2.communicate()
-	print(outs)
+	#print(outs)
 	ntfs = bool(int(outs.decode('ascii').strip()))
 	if ntfs:
 		print("Found NTFS partition...")
@@ -127,7 +129,7 @@ try:
 		print("Resizing File System...\n")
 
 		if ntfs:
-			popen = subprocess.Popen(['ntfsresize','-x',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+			popen = subprocess.Popen(['ntfsresize','-f',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
 			try:
 				outs, errs = popen.communicate()
 			except:
@@ -169,7 +171,7 @@ try:
 
 	supdict = {'ws_serial_num':'','Sup_Description':'','Sup_Value':'','time_start':datetime.datetime(1,1,1)}
 	supdict ['ws_serial_num'] = sn
-	supdict['Sup_Description'] = 'Linux Image'
+	supdict['Sup_Description'] = 'OS Image'
 	supdict['Sup_Value'] = answer['imgfile'].split('/')[-1]
 	supdict['time_start'] = date
 
