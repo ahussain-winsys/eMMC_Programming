@@ -29,7 +29,10 @@ while True:
 	try:
 		value = input("Enter Serial Number: ")
 		value = value.strip()
-		if len(value) == 10:
+		print("YY = ", value[:2])
+		print("MM = ", value[2:4])
+		print("DD = ", value[4:6])
+		if (len(value) == 10) and (int(value[:2]) > 20) and (0 < int(value[2:4]) <= 12) and (0 < int(value[4:6]) <= 31):
 			sn = value
 			break;
 		else:
