@@ -12,6 +12,10 @@ from colorama import Fore, Back, Style, init
 ######### August 16th 2021 ##############
 ######### Al Hussain    ##############
 
+######### October 27th 2023 ############
+######### Updated image path from /home/winsys/ to /media/images#############
+######### Al Hussain ###############
+
 ## init for colorama
 init()
 print(Fore.GREEN)
@@ -19,7 +23,7 @@ print(Fore.GREEN)
 print("OS Programming Tool")
 print("--This tool copies an image file to any attached storage using bmap-tools")
 print("--Requires an image file and bmap file created using bmap-tools")
-print("--files must be in /home/winsys/ directory\n\n")
+print("--files must be in /media/images/ directory\n\n")
 
 print(Style.RESET_ALL)
 date = datetime.datetime.now()
@@ -59,7 +63,7 @@ try:
 	ext = ('.img','.bz2','.gz','.tgz')
 	files = []
 	for z in ext:
-		files.extend(glob.glob('/home/winsys/*'+z))
+		files.extend(glob.glob('/media/images/*'+z))
 
 ######### Ask questions for image selection and physical disk ###############################
 #############################################################################################
