@@ -16,6 +16,10 @@ from colorama import Fore, Back, Style, init
 ######### Updated image path from /home/winsys/ to /media/images#############
 ######### Al Hussain ###############
 
+######### May 10th 2024 ############
+######### Branched for MiJack 423 specific script#############
+######### Al Hussain ###############
+
 ## init for colorama
 init()
 print(Fore.GREEN)
