@@ -24,7 +24,7 @@ from colorama import Fore, Back, Style, init
 init()
 print(Fore.GREEN)
 
-print("OS Programming Tool")
+print("MiJack423 Programming Tool")
 print("--This tool copies an image file to any attached storage using bmap-tools")
 print("--Requires an image file and bmap file created using bmap-tools")
 print("--files must be in /media/images/ directory\n\n")
@@ -99,79 +99,79 @@ try:
 ######## Resize last partition #############################################################
 ############################################################################################
 
-	ntfs = False
-	time.sleep(10)
-	print("\nChecking if NTFS partition exists...")
-	proc1 = subprocess.Popen(['lsblk','-f','-p',answer['disk']],stdout=subprocess.PIPE)
-	proc2 = subprocess.Popen(['grep','-c','ntfs'],stdin=proc1.stdout,stdout=subprocess.PIPE)
-	outs, errs = proc2.communicate()
-	#print(outs)
-	ntfs = bool(int(outs.decode('ascii').strip()))
-	if ntfs:
-		print("Found NTFS partition...")
-	proc1.kill()
-	try:
-		print("Getting Partition Info...\n")
-		subprocess.run(['sgdisk','-e',answer['disk']],capture_output=True,check=True)
-		subprocess.run(['sgdisk','-v',answer['disk']],capture_output=True,check=True)
-		call1 = subprocess.Popen(['parted','-s',answer['disk'],'print'],stdout=subprocess.PIPE)
-		call2 = subprocess.Popen(['grep','-o','^ [0-9] '],stdin=call1.stdout,stdout=subprocess.PIPE)
-		call1.wait()
-		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
-		call2.wait()
-		parted_num = call3.strip()
+	# ntfs = False
+	# time.sleep(10)
+	# print("\nChecking if NTFS partition exists...")
+	# proc1 = subprocess.Popen(['lsblk','-f','-p',answer['disk']],stdout=subprocess.PIPE)
+	# proc2 = subprocess.Popen(['grep','-c','ntfs'],stdin=proc1.stdout,stdout=subprocess.PIPE)
+	# outs, errs = proc2.communicate()
+	# #print(outs)
+	# ntfs = bool(int(outs.decode('ascii').strip()))
+	# if ntfs:
+	# 	print("Found NTFS partition...")
+	# proc1.kill()
+	# try:
+	# 	print("Getting Partition Info...\n")
+	# 	subprocess.run(['sgdisk','-e',answer['disk']],capture_output=True,check=True)
+	# 	subprocess.run(['sgdisk','-v',answer['disk']],capture_output=True,check=True)
+	# 	call1 = subprocess.Popen(['parted','-s',answer['disk'],'print'],stdout=subprocess.PIPE)
+	# 	call2 = subprocess.Popen(['grep','-o','^ [0-9] '],stdin=call1.stdout,stdout=subprocess.PIPE)
+	# 	call1.wait()
+	# 	call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
+	# 	call2.wait()
+	# 	parted_num = call3.strip()
 
-		print("Partition Number "+parted_num+" on "+answer['disk']+"...")
-		print("Resizing Partition...\n")
-		popen = subprocess.Popen(['parted','-s',answer['disk'],'resizepart',parted_num,'100%'],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-		try:
-			outs, errs = popen.communicate()
-		except:
-			popen.kill()
-		if popen.wait():
-			raise RuntimeError('FAILURE - Error occurred during resising partition.')
+	# 	print("Partition Number "+parted_num+" on "+answer['disk']+"...")
+	# 	print("Resizing Partition...\n")
+	# 	popen = subprocess.Popen(['parted','-s',answer['disk'],'resizepart',parted_num,'100%'],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+	# 	try:
+	# 		outs, errs = popen.communicate()
+	# 	except:
+	# 		popen.kill()
+	# 	if popen.wait():
+	# 		raise RuntimeError('FAILURE - Error occurred during resising partition.')
 
-		call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
-		call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
-		call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
-		call1.wait()
-		partition = call3.strip()
-		print("Resizing File System...\n")
+	# 	call1 = subprocess.Popen(['hwinfo','--partition','--short'],stdout=subprocess.PIPE)
+	# 	call2 = subprocess.Popen(['grep','-o',answer['disk']+'.*'+parted_num],stdin=call1.stdout,stdout=subprocess.PIPE)
+	# 	call3 = subprocess.check_output(['tail','-1'],stdin=call2.stdout).decode('ascii')
+	# 	call1.wait()
+	# 	partition = call3.strip()
+	# 	print("Resizing File System...\n")
 
-		if ntfs:
-			popen = subprocess.Popen(['ntfsresize','-f',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-			try:
-				outs, errs = popen.communicate()
-			except:
-				popen.kill()
-			if popen.wait():
-				raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
+	# 	if ntfs:
+	# 		popen = subprocess.Popen(['ntfsresize','-f',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+	# 		try:
+	# 			outs, errs = popen.communicate()
+	# 		except:
+	# 			popen.kill()
+	# 		if popen.wait():
+	# 			raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
 
-			#popen = subprocess.Popen(['ntfsfix',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newline=True)
-			#try:
-			#	outs, errs = popen.communicate()
-			#except:
-			#	popen.kill()
-			#if popen.wait():
-			#	raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
-		else:
-			popen = subprocess.Popen(['e2fsck','-f','-y','-v','-t',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-			try:
-				outs, errs = popen.communicate()
-			except:
-				popen.kill()
-			if popen.wait():
-				raise RuntimeError('FAILURE - Error occurred during filesystem resize (e2fsck).')
+	# 		#popen = subprocess.Popen(['ntfsfix',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newline=True)
+	# 		#try:
+	# 		#	outs, errs = popen.communicate()
+	# 		#except:
+	# 		#	popen.kill()
+	# 		#if popen.wait():
+	# 		#	raise RuntimeError('FAILURE - Error occurred during filesystem resize (ntfsresize).')
+	# 	else:
+	# 		popen = subprocess.Popen(['e2fsck','-f','-y','-v','-t',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+	# 		try:
+	# 			outs, errs = popen.communicate()
+	# 		except:
+	# 			popen.kill()
+	# 		if popen.wait():
+	# 			raise RuntimeError('FAILURE - Error occurred during filesystem resize (e2fsck).')
 
-			popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
-			try:
-				outs, errs = popen.communicate()
-			except:
-				popen.kill()
-			if popen.wait():
-				raise RuntimeError('FAILURE - Error occurred during fileystem resize (resize2fs).')
-	except Exception as e:
-		raise
+	# 		popen = subprocess.Popen(['resize2fs','-p',partition],stdout=sys.stdout,stderr=sys.stderr,universal_newlines=True)
+	# 		try:
+	# 			outs, errs = popen.communicate()
+	# 		except:
+	# 			popen.kill()
+	# 		if popen.wait():
+	# 			raise RuntimeError('FAILURE - Error occurred during fileystem resize (resize2fs).')
+	# except Exception as e:
+	# 	raise
 
 
 
