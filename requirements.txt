@@ -62,7 +62,7 @@ six==1.16.0
 sos==4.5.6
 ssh-import-id==5.11
 systemd-python==234
-Twisted==22.1.0
+Twisted==24.7.0rc1
 ubuntu-advantage-tools==8001
 ubuntu-drivers-common==0.0.0
 ufw==0.36.1
